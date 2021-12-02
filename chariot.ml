@@ -1,5 +1,7 @@
 open Base
 
+(* TODO: different types for part one and two *)
+
 module type Solver = sig
   type input
   type output
