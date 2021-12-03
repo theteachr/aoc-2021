@@ -2,6 +2,8 @@ open Base
 
 (* TODO: different types for part one and two *)
 
+let ( << ) = Fn.compose
+
 module type Solver = sig
   type input
   type output
@@ -19,6 +21,8 @@ let solvers : (module Solver) array = [|
 
 let () = Array.iteri solvers ~f:(fun i (module M) ->
   let open M in
-  solve_one @@ read (Printf.sprintf "inputs/%02d.txt" (i + 1))
-  |> M.string_of_output
-  |> Stdio.print_endline)
+  let open Printf in
+  List.iter [solve_one; solve_two] ~f:(
+    Stdio.print_endline
+    << string_of_output
+    << Fn.flip ( @@ ) (read (sprintf "inputs/%02d.txt" (i + 1)))))
