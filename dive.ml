@@ -1,4 +1,5 @@
 open Base
+open Core
 
 type input = (string * int) list
 type output = int
@@ -12,7 +13,7 @@ let read path =
     | [direction; value] -> (direction, Int.of_string value)
     | _ -> failwith "unreachable"
   in
-  Core.In_channel.read_lines path
+  In_channel.read_lines path
   |> List.map ~f:(pair << (String.split ~on:' '))
 
 let solve_one input =

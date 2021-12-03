@@ -1,4 +1,5 @@
 open Base
+open Core
 
 type input = int list
 type output = int
@@ -6,7 +7,7 @@ type output = int
 let string_of_output = Int.to_string 
 
 let read path =
-  Core.In_channel.read_lines path
+  In_channel.read_lines path
   |> List.map ~f:Int.of_string
 
 let solve_one report =
