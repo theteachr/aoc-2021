@@ -29,10 +29,7 @@ let solve_one data =
       |> map ~f:(fun ((zeros, ones), digit) ->
           let update = digit = 0 in
           (zeros +~ update, ones +~ (not update)))) in
-  let g = rev_map counts ~f:(fun (z, o) -> z > o) in
-  let e = map g ~f:not in
-  fold_left [g; e]
-  ~init:1
-  ~f:(fun value lst -> value * bin_to_dec lst)
+  let g, e = rev_map counts ~f:(fun (z, o) -> (z > o, z <= o)) |> unzip in
+  bin_to_dec g * bin_to_dec e
 
 let ans = solve_one (read "inputs/03.txt")
