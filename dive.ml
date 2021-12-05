@@ -8,6 +8,7 @@ let string_of_output = Int.to_string
 
 let ( << ) = Fn.compose
 
+(* XXX: a type for direction (resutlts in a less number of `failwith`s) *)
 let read path =
   let pair = function
     | [direction; value] -> (direction, Int.of_string value)
