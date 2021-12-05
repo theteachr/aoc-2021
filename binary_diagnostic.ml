@@ -1,5 +1,7 @@
-open Base
 open Core
+
+type input = int array array
+type output = int
 
 let string_of_output = Int.to_string
 
