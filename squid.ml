@@ -9,8 +9,6 @@ type cell_state = Marked of int | Unmarked of int
 
 module Board = struct
 
-  type t = int array array
-
   let row_of_line =
     List.map ~f:(fun s -> Unmarked (Int.of_string s)) << Str.(split (regexp " +"))
 
@@ -37,23 +35,23 @@ module Board = struct
         board.(r).(c) <- Marked x
     | _ -> ()
 
-  let bingoed_row =
-    Array.fold_until ~init:0 ~f:(fun row_idx row ->
-      if Array.for_all row ~f:(fun c ->
-        match c with
-        | Marked _ -> true
-        | _ -> false)
-      then Stop (Some row_idx) else Continue (row_idx + 1))
+  let all_marked =
+    Array.for_all ~f:(fun c ->
+      match c with
+      | Marked _ -> true
+      | _ -> false)
+
+  let bingoed_row board =
+    Array.fold_until board ~init:0 ~f:(fun row_idx row ->
+      if all_marked row then Stop (Some row_idx)
+      else Continue (row_idx + 1))
     ~finish:(fun _ -> None)
 
   let bingoed_col board =
     Array.fold_until board ~init:0 ~f:(fun col_idx _ ->
-      let col = List.init 5 ~f:(fun i -> board.(i).(col_idx)) in
-      if List.for_all col ~f:(fun c ->
-        match c with
-        | Marked _ -> true
-        | _ -> false)
-      then Stop (Some col_idx) else Continue (col_idx + 1))
+      let col = Array.init 5 ~f:(fun i -> board.(i).(col_idx)) in
+      if all_marked col then Stop (Some col_idx)
+      else Continue (col_idx + 1))
     ~finish:(fun _ -> None)
 
   let bingo board =
