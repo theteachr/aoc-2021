@@ -1,9 +1,6 @@
 open Base
 open Core
 
-type input = int array array
-type output = int
-
 let string_of_output = Int.to_string
 
 let ( << ) = Fn.compose
@@ -16,38 +13,48 @@ let read path =
 
 let rates data =
   let open Array in
-  let counts = fold data
-    ~init:(init (length @@ data.(0)) ~f:(fun _ -> (0, 0)))
-    ~f:(fun acc row -> zip_exn acc row
-      |> map ~f:(fun ((zeros, ones), digit) ->
-          let update = digit = 0 in
-          (zeros +~ update, ones +~ (not update))))
+  let aux acc row =
+    zip_exn acc row
+    |> map ~f:(fun ((zeros, ones), digit) ->
+        let update = digit = 0 in
+        (zeros +~ update, ones +~ (not update)))
   in
-  map counts ~f:(fun (z, o) -> (z <= o, z > o)) |> unzip
+  fold data
+    ~init:(init (length @@ data.(0)) ~f:(fun _ -> (0, 0)))
+    ~f:aux
 
-let solve_one data =
-  let bin_arr_to_dec arr =
-    let lst = Array.to_list arr |> List.rev in
-    List.foldi lst
+let bin_arr_to_dec arr =
+  let lst = Array.to_list arr |> List.rev in
+  List.foldi lst
     ~init:0
     ~f:(fun i acc bit -> acc + (Base.( ** ) 2 i) * Bool.to_int bit)
+
+let solve_one data =
+  let (g, e) =
+    rates data
+    |> Array.map ~f:(fun (z, o) -> (z < o, z >= o))
+    |> Array.unzip
   in
-  let (g, e) = rates data in
   bin_arr_to_dec g * bin_arr_to_dec e
 
 let solve_two data =
-  let open Array in
-  let (g, e) = rates data in
-  let _x = fold_until data
-  ~init:(data, 0)
-  ~f:(fun (rest, i) _ ->
-    if length rest = 1 then Stop rest.(0)
-    else Continue (filter rest ~f:(fun arr -> arr.(i) = Bool.to_int g.(i)), i + 1))
-  ~finish:(fun _ -> map e ~f:Bool.to_int)
+  let _x = Array.fold_until data
+  ~init:(rates data, data, 0)
+  ~f:(fun (ratings, rest, i) _ ->
+    if i = 5 (*Array.length rest = 1*) then Stop (rest, 800)
+    else let filtered = Array.filter rest ~f:(fun arr ->
+      let (z, o) = ratings.(i) in
+      let bit = match (Int.compare z o) with
+      | -1 | 0 -> 0
+      | _ -> 1
+      in
+      arr.(i) <> bit) in Continue (rates filtered, filtered, i + 1))
+  ~finish:(fun _ -> (data, 100))
   in
-  0
+  _x
 
 
 let input = read "inputs/03.txt"
 let ans_one = solve_one input
 let ans = solve_two input
+let r = rates input
