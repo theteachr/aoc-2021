@@ -1,6 +1,11 @@
 open Base
 
 (* XXX: different types for part one and two *)
+(* TODO: command line arguments
+ - run all
+ - run a specific part 
+ - run both parts of a day
+ - time *)
 
 let ( << ) = Fn.compose
 
