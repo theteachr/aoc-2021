@@ -38,20 +38,22 @@ let solve_one data =
   bin_arr_to_dec g * bin_arr_to_dec e
 
 let solve_two data =
-  let _x = Array.fold_until data
-  ~init:(rates data, data, 0)
-  ~f:(fun (ratings, rest, i) _ ->
-    if i = 5 (*Array.length rest = 1*) then Stop (rest, 800)
-    else let filtered = Array.filter rest ~f:(fun arr ->
-      let (z, o) = ratings.(i) in
-      let bit = match (Int.compare z o) with
-      | -1 | 0 -> 1
-      | _ -> 0
-      in
-      arr.(i) = bit) in Continue (rates filtered, filtered, i + 1))
-  ~finish:(fun _ -> (data, 100))
+  let compartor rate_bit a b = match (Int.compare a b) with
+      | -1 | 0 -> rate_bit
+      | _ -> 1 - rate_bit
   in
-  _x
+  let aux cmp = Array.fold_until data
+    ~init:(rates data, data, 0)
+    ~f:(fun (ratings, rest, i) _ ->
+      if Array.length rest = 1 then Stop (rest.(0))
+      else let filtered = Array.filter rest ~f:(fun arr ->
+        let (z, o) = ratings.(i) in
+        arr.(i) = cmp z o) in Continue (rates filtered, filtered, i + 1))
+    ~finish:(fun _ -> (data.(0)))
+      |> Array.map ~f:(( <> ) 0)
+      |> bin_arr_to_dec
+  in
+  aux (compartor 0) * aux (compartor 1)
 
 
 let input = read "inputs/03.txt"
