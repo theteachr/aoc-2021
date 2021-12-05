@@ -39,6 +39,7 @@ let solve_one data =
   in
   bin_arr_to_dec g * bin_arr_to_dec e
 
+(* TODO: optimize *)
 let solve_two data =
   let compartor rate_bit a b = match (Int.compare a b) with
       | -1 | 0 -> rate_bit
