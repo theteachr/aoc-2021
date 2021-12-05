@@ -45,10 +45,10 @@ let solve_two data =
     else let filtered = Array.filter rest ~f:(fun arr ->
       let (z, o) = ratings.(i) in
       let bit = match (Int.compare z o) with
-      | -1 | 0 -> 0
-      | _ -> 1
+      | -1 | 0 -> 1
+      | _ -> 0
       in
-      arr.(i) <> bit) in Continue (rates filtered, filtered, i + 1))
+      arr.(i) = bit) in Continue (rates filtered, filtered, i + 1))
   ~finish:(fun _ -> (data, 100))
   in
   _x
