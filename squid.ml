@@ -7,6 +7,8 @@ let ( << ) = Fn.compose
 
 type cell_state = Marked of int | Unmarked of int
 
+(********* FIXME worst brute force approach employed *)
+
 module Board = struct
 
   let row_of_line =
@@ -14,7 +16,7 @@ module Board = struct
 
   let of_lines = List.to_array << List.(map ~f:(to_array << row_of_line))
 
-  let mark board x =
+  let mark x board =
     let fold_result =
       Array.fold_until board
       ~init:0
@@ -41,17 +43,17 @@ module Board = struct
       | Marked _ -> true
       | _ -> false)
 
+  let continue_aux idx vec = 
+    let open Continue_or_stop in
+    if all_marked vec then Stop (Some idx) else Continue (idx + 1)
+
   let bingoed_row board =
-    Array.fold_until board ~init:0 ~f:(fun row_idx row ->
-      if all_marked row then Stop (Some row_idx)
-      else Continue (row_idx + 1))
-    ~finish:(fun _ -> None)
+    Array.fold_until board ~init:0 ~f:continue_aux ~finish:(fun _ -> None)
 
   let bingoed_col board =
     Array.fold_until board ~init:0 ~f:(fun col_idx _ ->
       let col = Array.init 5 ~f:(fun i -> board.(i).(col_idx)) in
-      if all_marked col then Stop (Some col_idx)
-      else Continue (col_idx + 1))
+      continue_aux col_idx col)
     ~finish:(fun _ -> None)
 
   let bingo board =
@@ -60,6 +62,15 @@ module Board = struct
     | None -> match bingoed_col board with
     | Some ci -> `Col ci
     | None -> `Unbingoed
+
+  let value board =
+    Array.fold board
+    ~init:0
+    ~f:(fun v row ->
+      v + Array.fold row ~init:0 ~f:(fun s cell ->
+        match cell with
+        | Unmarked x -> s + x
+        | _ -> s))
 
 end
 
@@ -75,6 +86,32 @@ let read path =
   in
   (drawer, boards)
 
+let bingoed_board boards n =
+    List.fold_until boards
+    ~init:0
+    ~f:(fun idx board ->
+      Board.mark n board;
+      match Board.bingo board with
+      | `Unbingoed -> Continue (idx + 1)
+      | _ -> Stop (Some board))
+    ~finish:(fun _ -> None)
+
+let solve boards draw =
+  let res = List.fold_until draw
+  ~init:0
+  ~f:(fun idx n ->
+    match bingoed_board boards n with
+    | Some x -> Stop (Some (x, n))
+    | _ -> Continue (idx + 1))
+  ~finish:(fun _ -> None)
+  in
+  match res with
+  | Some (board, v) -> (Board.value board) * v
+  | None -> 0
+
+
 let (drawer, boards) = read "inputs/04.txt"
 let first_board = List.hd_exn boards
 let row = first_board.(0)
+
+let answer = solve boards drawer
