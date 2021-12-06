@@ -115,7 +115,7 @@ let solve_one (boards, drawer) =
   | None -> 0
 
 let solve_two (boards, drawer) =
-  let (last_board, n) = List.fold_until drawer
+  let (last_board, remainders) = List.fold_until drawer
   ~init:(boards, drawer)
   ~f:(fun (boards, drawer) n ->
     match List.rev_filter boards ~f:(fun board ->
@@ -125,9 +125,18 @@ let solve_two (boards, drawer) =
       | _ -> false)
     with
     | [] -> failwith "No suitable board"
-    | [board] -> Stop (board, List.(drawer |> tl_exn |> hd_exn))
+    | [board] -> Stop (board, List.tl_exn drawer)
     | boards -> Continue (boards, List.tl_exn drawer))
   ~finish:(fun _ -> failwith "No suitable board")
   in
-  Board.mark n last_board;
-  n * Board.value last_board
+  let n = List.fold_until remainders
+  ~init:last_board
+  ~f:(fun board x ->
+    Board.mark x board;
+    match Board.bingo board with
+    | `Unbingoed -> Continue (last_board)
+    | _ -> Stop x)
+  ~finish:(fun _ -> 0) in
+  (n * Board.value last_board)
+
+let answer = solve_two (read "inputs/04.txt")
