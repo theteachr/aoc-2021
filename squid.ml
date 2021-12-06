@@ -7,6 +7,9 @@ let ( << ) = Fn.compose
 
 type cell_state = Marked of int | Unmarked of int
 
+type input = (cell_state array array list * int list)
+type output = int
+
 (********* FIXME worst brute force approach employed *)
 
 module Board = struct
@@ -21,7 +24,7 @@ module Board = struct
       Array.fold_until board
       ~init:0
       ~f:(fun row_idx row ->
-        let found = Array.findi row (fun _ n ->
+        let found = Array.findi row ~f:(fun _ n ->
           match n with
           | Unmarked y -> x = y
           | _ -> false)
@@ -32,9 +35,11 @@ module Board = struct
       ~finish:(fun _ -> None)
     in
     match fold_result with
-    | Some (r, c) ->
-        let Unmarked x = board.(r).(c) in
-        board.(r).(c) <- Marked x
+    | Some (r, c) -> begin
+        match board.(r).(c) with
+        | Unmarked x -> board.(r).(c) <- Marked x
+        | _ -> ()
+    end
     | _ -> ()
 
   let all_marked =
@@ -75,16 +80,16 @@ module Board = struct
 end
 
 let read path =
-  let drawer_line :: board_lines = In_channel.read_all path
+  let parsed = In_channel.read_all path
   |> String.split_lines
-  |> List.filter ~f:(not << String.is_empty)
-  in
+  |> List.filter ~f:(not << String.is_empty) in
+  let (drawer_line, board_lines) = List.(hd_exn parsed, tl_exn parsed) in
   let drawer = String.split drawer_line ~on:',' |> List.map ~f:Int.of_string in
   let boards = board_lines
   |> List.groupi ~break:(fun i _ _ -> i % 5 = 0)
   |> List.map ~f:Board.of_lines
   in
-  (drawer, boards)
+  (boards, drawer)
 
 let bingoed_board boards n =
     List.fold_until boards
@@ -96,8 +101,8 @@ let bingoed_board boards n =
       | _ -> Stop (Some board))
     ~finish:(fun _ -> None)
 
-let solve boards draw =
-  let res = List.fold_until draw
+let solve_one (boards, drawer) =
+  let res = List.fold_until drawer
   ~init:0
   ~f:(fun idx n ->
     match bingoed_board boards n with
@@ -109,9 +114,4 @@ let solve boards draw =
   | Some (board, v) -> (Board.value board) * v
   | None -> 0
 
-
-let (drawer, boards) = read "inputs/04.txt"
-let first_board = List.hd_exn boards
-let row = first_board.(0)
-
-let answer = solve boards drawer
+let solve_two _ = 0

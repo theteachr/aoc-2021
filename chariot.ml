@@ -23,6 +23,7 @@ let solvers : (module Solver) array = [|
   (module Sonar_sweep);
   (module Dive);
   (module Binary_diagnostic);
+  (module Squid);
 |]
 
 let () = Array.iteri solvers ~f:(fun i (module M) ->
