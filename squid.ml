@@ -114,4 +114,20 @@ let solve_one (boards, drawer) =
   | Some (board, v) -> (Board.value board) * v
   | None -> 0
 
-let solve_two _ = 0
+let solve_two (boards, drawer) =
+  let (last_board, n) = List.fold_until drawer
+  ~init:(boards, drawer)
+  ~f:(fun (boards, drawer) n ->
+    match List.rev_filter boards ~f:(fun board ->
+      Board.mark n board;
+      match Board.bingo board with
+      | `Unbingoed -> true
+      | _ -> false)
+    with
+    | [] -> failwith "No suitable board"
+    | [board] -> Stop (board, List.(drawer |> tl_exn |> hd_exn))
+    | boards -> Continue (boards, List.tl_exn drawer))
+  ~finish:(fun _ -> failwith "No suitable board")
+  in
+  Board.mark n last_board;
+  n * Board.value last_board
