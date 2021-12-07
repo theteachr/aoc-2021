@@ -7,9 +7,22 @@ module Point = struct
 
   type t = { x : int; y : int }
 
+  let create x y = { x; y }
+
   let of_list = function
     | [a; b] -> { x = a; y = b }
     | _ -> failwith "Inapproiate list"
+
+  let range a b =
+    let op = if a <= b then ( + ) else ( - ) in
+    List.init ((abs (a - b)) + 1) (op a)
+
+  let between ({ x = x1; y = y1 }, { x = x2; y = y2 }) =
+    let xs = range x1 x2 in
+    let ys = range y1 y2 in
+
+    let open List.Monad_infix in
+    xs >>= fun x -> List.map ys ~f:(Point.create x)
 
 end
 
@@ -28,4 +41,6 @@ let read path =
     << Str.(split (regexp " -> ")))
 
 
-let answer = read "inputs/05.txt"
+let data = read "inputs/05.txt"
+let all_points = data |> List.map ~f:Point.between
+
