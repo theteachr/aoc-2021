@@ -22,7 +22,7 @@ module Point = struct
     let ys = range y1 y2 in
 
     let open List.Monad_infix in
-    xs >>= fun x -> List.map ys ~f:(Point.create x)
+    xs >>= fun x -> List.map ys ~f:(create x)
 
 end
 
@@ -40,7 +40,10 @@ let read path =
       << String.split ~on:',')
     << Str.(split (regexp " -> ")))
 
+let solve_one =
+  let open List in
+  map ~f:Point.between
+  << filter ~f:(fun ((p1, p2) : (Point.t * Point.t)) -> p1.x = p2.x || p1.y = p2.y)
 
 let data = read "inputs/05.txt"
-let all_points = data |> List.map ~f:Point.between
-
+let answer = solve_one data
