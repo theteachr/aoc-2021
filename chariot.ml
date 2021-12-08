@@ -1,5 +1,3 @@
-open Base
-
 (* XXX: different types for part one and two *)
 (* TODO: command line arguments
  - run all
@@ -7,7 +5,7 @@ open Base
  - run both parts of a day
  - time *)
 
-let ( << ) = Fn.compose
+let ( << ) f g x = x |> g |> f
 
 module type Solver = sig
   type input
@@ -21,21 +19,27 @@ end
 
 let solvers : (module Solver) array = [|
   (module Sonar_sweep);
-  (module Dive);
+  (*(module Dive);
   (module Binary_diagnostic);
-  (module Squid);
+  (module Squid);*)
 |]
 
-let () = Array.iteri solvers ~f:(fun i (module M) ->
+let read_to_string filepath =
+  let channel = open_in filepath in
+  let content = really_input_string channel (in_channel_length channel) in
+  close_in channel;
+  String.trim content
+
+let print_solutions i (module M : Solver) =
   let open M in
   let open Printf in
   let open Stdio in
 
   print_endline (sprintf "Day %02d" (i + 1)); (* FIXME *)
 
-  let input_data = read (sprintf "inputs/%02d.txt" (i + 1)) in
+  let input_data = read_to_string (sprintf "inputs/%02d.txt" (i + 1)) |> read in
+  List.map (( |> ) input_data) [solve_one; solve_two]
+  |> List.iteri (fun j solution ->
+      print_endline (sprintf "  Part %02d: %s" (j + 1) (string_of_output solution)))
 
-  List.map [solve_one; solve_two] ~f:(Fn.flip ( @@ ) input_data)
-  |> List.iteri ~f:(fun j solution ->
-      print_endline (sprintf "  Part %02d: %s" (j + 1) (string_of_output solution)
-    )))
+let () = Array.iteri print_solutions solvers
