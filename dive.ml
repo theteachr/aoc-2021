@@ -7,7 +7,6 @@ let string_of_output = string_of_int
 
 let ( << ) f g x = x |> g |> f
 
-(* XXX: a type for direction (results in a less number of `failwith`s) *)
 let read file_content =
   let pair = function
     | [direction; value] -> begin
