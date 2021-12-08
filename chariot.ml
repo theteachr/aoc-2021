@@ -19,9 +19,11 @@ end
 
 let solvers : (module Solver) array = [|
   (module Sonar_sweep);
-  (*(module Dive);
+  (module Dive);
+(*
   (module Binary_diagnostic);
-  (module Squid);*)
+  (module Squid);
+*)
 |]
 
 let read_to_string filepath =
