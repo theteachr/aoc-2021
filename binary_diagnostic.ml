@@ -26,10 +26,7 @@ let dec_of_bool_array =
 
 let solve_one data =
   let half = List.length data / 2 in
-  let gamma_rate =
-    frequencies data
-    |> List.rev_map (( <= ) half)
-  in
+  let gamma_rate = frequencies data |> List.rev_map (( <= ) half) in
   let epsilon_rate = List.map not gamma_rate in
   dec_of_bool_array gamma_rate * dec_of_bool_array epsilon_rate
 
