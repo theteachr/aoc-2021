@@ -29,7 +29,7 @@ let solvers : (module Solver) array = [|
 let read_to_string filepath =
   let channel = open_in filepath in
   let content = really_input_string channel (in_channel_length channel) in
-  close_in channel;
+  let () = close_in channel in
   String.trim content
 
 let print_solutions i (module M : Solver) =
@@ -37,11 +37,10 @@ let print_solutions i (module M : Solver) =
   let open Printf in
   let open Stdio in
 
-  print_endline (sprintf "Day %02d" (i + 1)); (* FIXME *)
-
+  let () = print_endline (sprintf "Day %02d" (i + 1)) in
   let input_data = read_to_string (sprintf "inputs/%02d.txt" (i + 1)) |> read in
-  List.map (( |> ) input_data) [solve_one; solve_two]
-  |> List.iteri (fun j solution ->
-      print_endline (sprintf "  Part %02d: %s" (j + 1) (string_of_output solution)))
+  let solvers = [solve_one; solve_two] in
+  List.map (( |> ) input_data) solvers |> List.iteri (fun j sol ->
+    print_endline (sprintf "  Part %02d: %s" (j + 1) (string_of_output sol)))
 
 let () = Array.iteri print_solutions solvers
