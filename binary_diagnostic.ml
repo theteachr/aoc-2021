@@ -8,8 +8,8 @@ let ( << ) f g x = x |> g |> f
 let read =
   let digit_of_char c = int_of_char c - 48 in
   let list_of_string = List.of_seq << String.to_seq in
-  List.(map (map digit_of_char << list_of_string)) <<
-  String.split_on_char '\n'
+  List.(map (map digit_of_char << list_of_string))
+  << String.split_on_char '\n'
 
 let frequencies data =
   let open List in
