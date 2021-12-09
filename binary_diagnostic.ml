@@ -17,14 +17,14 @@ let frequencies data =
   let init_counts = init bit_width (fun _ -> 0) in
   fold_left (map2 ( + )) init_counts data
 
+let dec_of_bool_array =
+  let open List in
+  int_of_float
+  << snd
+  << fold_left (fun (p, v) bit -> (p +. 1., v +. 2. ** p *. bit)) (0., 0.)
+  << map Bool.to_float
+
 let solve_one data =
-  let dec_of_bool_array =
-    let open List in
-    int_of_float
-    << snd
-    << fold_left (fun (pow, value) bit -> pow +. 1., value +. 2. ** pow *. bit) (0., 0.)
-    << map Bool.to_float
-  in
   let half = List.length data / 2 in
   let gamma_rate =
     frequencies data
