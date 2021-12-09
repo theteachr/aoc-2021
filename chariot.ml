@@ -20,8 +20,8 @@ end
 let solvers : (module Solver) array = [|
   (module Sonar_sweep);
   (module Dive);
-(*
   (module Binary_diagnostic);
+(*
   (module Squid);
 *)
 |]
