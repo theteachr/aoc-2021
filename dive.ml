@@ -3,7 +3,7 @@ type direction = Forward | Down | Up
 type input = (direction * int) list
 type output = int
 
-let string_of_output = string_of_int
+let string_of_output = Int.to_string
 
 let ( << ) f g x = x |> g |> f
 
