@@ -1,7 +1,7 @@
 type input = int list list
 type output = int
 
-let string_of_output = string_of_int
+let string_of_output = Int.to_string
 
 let ( << ) f g x = x |> g |> f
 
@@ -26,10 +26,13 @@ let dec_of_bool_list =
 
 let flip_bool_list = List.map not
 
-let solve_one data =
+let gamma_rate data =
   let half = List.length data / 2 in
-  let gamma_rate = frequencies data |> List.rev_map (( <= ) half) in
-  let epsilon_rate = flip_bool_list gamma_rate in
-  dec_of_bool_list gamma_rate * dec_of_bool_list epsilon_rate
+  frequencies data |> List.rev_map (( <= ) half)
 
-let solve_two _ = 0
+let epsilon_rate = flip_bool_list << gamma_rate
+
+let solve_one data =
+  dec_of_bool_list (gamma_rate data) * dec_of_bool_list (epsilon_rate data)
+
+let solve_two data = List.length data
