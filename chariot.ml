@@ -37,10 +37,13 @@ let print_solutions i (module M : Solver) =
   let open Printf in
   let open Stdio in
 
+  let print_part zi sol =
+    print_endline (sprintf "  Part %02d: %s" (zi+1) (string_of_output sol))
+  in
   let () = print_endline (sprintf "Day %02d" (i + 1)) in
   let input_data = read_to_string (sprintf "inputs/%02d.txt" (i + 1)) |> read in
   let solvers = [solve_one; solve_two] in
-  List.map (( |> ) input_data) solvers |> List.iteri (fun j sol ->
-    print_endline (sprintf "  Part %02d: %s" (j + 1) (string_of_output sol)))
+  List.map (( |> ) input_data) solvers
+  |> List.iteri print_part
 
 let () = Array.iteri print_solutions solvers
